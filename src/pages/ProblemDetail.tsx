@@ -4,6 +4,7 @@ import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { useParams } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext"
+import { useTheme } from "../contexts/ThemeContext"
 import axios from "axios"
 import { showError, showSuccess, showInfo } from '../utils/toast';
 import {
@@ -28,6 +29,7 @@ import {
   History,
   Plus,
   ArrowLeft,
+  X,
   Zap, // For complexity analysis
   GraduationCap, // For visualizer
   Settings,
@@ -158,6 +160,7 @@ const ProblemDetail: React.FC = () => {
   }
   const { id } = useParams<{ id: string }>()
   const { user, token, updateCoins } = useAuth()
+  const { isDark } = useTheme()
   const [problem, setProblem] = useState<Problem | null>(null)
   const [code, setCode] = useState("")
   const [language, setLanguage] = useState("cpp")
@@ -175,6 +178,9 @@ const ProblemDetail: React.FC = () => {
   const [isSolved, setIsSolved] = useState(false)
   const [tabSwitchCount, setTabSwitchCount] = useState(0)
   const [selectedSubmission, setSelectedSubmission] = useState<Submission | null>(null)
+  // Submission tabs state for LeetCode-style viewing
+  const [openSubmissionTabs, setOpenSubmissionTabs] = useState<Submission[]>([])
+  const [activeSubmissionTab, setActiveSubmissionTab] = useState<string | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const [aiPrompt, setAiPrompt] = useState("")
   const [aiResponse, setAiResponse] = useState("")
@@ -1105,20 +1111,39 @@ const ProblemDetail: React.FC = () => {
 
   const handleTabChange = (tab: string) => {
     setActiveTab(tab)
-    if (tab === "editorial" && !editorial) {
+    // Reset submission tab selection when viewing submissions list
+    if (tab === "submissions") {
+      setActiveSubmissionTab(null)
+      if (submissions.length === 0) {
+        fetchSubmissions()
+      }
+    } else if (tab === "editorial" && !editorial) {
       fetchEditorial()
-    } else if (tab === "submissions" && submissions.length === 0) {
-      fetchSubmissions()
     } else if (tab === "solutions" && solutions.length === 0) {
       fetchSolutions()
     }
   }
 
   const handleSubmissionClick = (submission: Submission) => {
-    setSelectedSubmission(submission)
-    if (submission.code) {
-      setCode(submission.code)
-      setLanguage(submission.language)
+    // Add submission to open tabs if not already open
+    if (!openSubmissionTabs.find(s => s._id === submission._id)) {
+      setOpenSubmissionTabs([...openSubmissionTabs, submission])
+    }
+    // Set this as the active tab
+    setActiveSubmissionTab(submission._id)
+  }
+
+  const closeSubmissionTab = (submissionId: string) => {
+    const updatedTabs = openSubmissionTabs.filter(s => s._id !== submissionId)
+    setOpenSubmissionTabs(updatedTabs)
+    
+    // If closed tab was active, switch to another tab or back to submissions list
+    if (activeSubmissionTab === submissionId) {
+      if (updatedTabs.length > 0) {
+        setActiveSubmissionTab(updatedTabs[updatedTabs.length - 1]._id)
+      } else {
+        setActiveSubmissionTab(null)
+      }
     }
   }
 
@@ -2083,7 +2108,7 @@ const ProblemDetail: React.FC = () => {
           </div>
 
           <div className="flex-shrink-0 border-b border-gray-200 dark:border-gray-750 bg-gray-50 dark:bg-gray-900">
-            <nav className="flex overflow-x-auto md:overflow-x-visible scrollbar-hide space-x-0" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <nav className="flex overflow-x-auto md:overflow-x-visible scrollbar-thin space-x-0" style={{ WebkitOverflowScrolling: 'touch' }}>
               <button
                 onClick={() => handleTabChange("description")}
                 className={`flex-shrink-0 py-3 px-3 md:px-4 text-xs md:text-sm font-medium text-center border-b-2 transition-all duration-200 min-w-max ${
@@ -2128,6 +2153,34 @@ const ProblemDetail: React.FC = () => {
                 <Code className="h-4 md:h-5 w-4 md:w-5" />
                 <span>Solutions</span>
               </button>
+
+              {/* Submission Tabs - Added Dynamically */}
+              {openSubmissionTabs.map((submission) => (
+                <button
+                  key={submission._id}
+                  onClick={() => {
+                    setActiveTab("submissions");
+                    setActiveSubmissionTab(submission._id);
+                  }}
+                  className={`flex-shrink-0 py-3 px-3 md:px-4 text-xs md:text-sm font-medium text-center border-b-2 transition-all duration-200 min-w-max group flex items-center space-x-2 ${
+                    activeTab === "submissions" && activeSubmissionTab === submission._id
+                      ? "border-blue-600 text-blue-600 dark:text-blue-400"
+                      : "border-transparent text-gray-700 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600"
+                  }`}
+                >
+                  <span>{submission.status}</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      closeSubmissionTab(submission._id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    title="Close"
+                  >
+                    <X className="h-3 w-3 md:h-4 md:w-4" />
+                  </button>
+                </button>
+              ))}
             </nav>
           </div>
 
@@ -2229,52 +2282,96 @@ const ProblemDetail: React.FC = () => {
 
             {activeTab === "submissions" && (
               <div className="text-gray-800 dark:text-gray-200">
-                <h2 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">Your Submissions</h2>
-                {submissions.length > 0 ? (
-                  <div className="space-y-4">
-                    {submissions.map((submission) => (
-                      <div
-                        key={submission._id}
-                        onClick={() => handleSubmissionClick(submission)}
-                        className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 shadow-sm ${
-                          selectedSubmission?._id === submission._id
-                            ? "border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20"
-                            : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center space-x-2">
-                            {getStatusIcon(submission.status)}
-                            <span className={`font-semibold text-lg ${getStatusColor(submission.status)}`}>
-                              {submission.status}
-                            </span>
+                {/* Show submission code if a tab is selected */}
+                {activeSubmissionTab && openSubmissionTabs.some(tab => tab._id === activeSubmissionTab) ? (
+                  <div>
+                    {(() => {
+                      const activeSubmission = openSubmissionTabs.find(tab => tab._id === activeSubmissionTab);
+                      if (!activeSubmission) return null;
+                      return (
+                        <div>
+                          <div className="mb-4">
+                            <div className="flex items-center justify-between mb-3 p-4 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                              <div className="flex items-center space-x-2">
+                                {getStatusIcon(activeSubmission.status)}
+                                <span className={`font-semibold text-lg ${getStatusColor(activeSubmission.status)}`}>
+                                  {activeSubmission.status}
+                                </span>
+                              </div>
+                              <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+                                <span>{new Date(activeSubmission.date).toLocaleString()}</span>
+                                <span>{activeSubmission.language}</span>
+                                <span>{activeSubmission.runtime}ms</span>
+                              </div>
+                            </div>
                           </div>
-                          <span className="text-sm text-gray-600 dark:text-gray-400">
-                            {new Date(submission.date).toLocaleString()}
-                          </span>
+                          
+                          <CodeMirrorEditor
+                            value={activeSubmission.code || "No code available"}
+                            onChange={() => {}} // Read-only
+                            language={activeSubmission.language || "cpp"}
+                            disabled={true}
+                            height="400px"
+                          />
                         </div>
-                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-700 dark:text-gray-300">
-                          <div className="flex items-center">
-                            <Clock className="h-4 w-4 mr-1 opacity-70" /> Runtime:{" "}
-                            <span className="ml-1 font-medium">{submission.runtime}ms</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Memory className="h-4 w-4 mr-1 opacity-70" /> Memory:{" "}
-                            <span className="ml-1 font-medium">{submission.memory}MB</span>
-                          </div>
-                          <div className="flex items-center col-span-2">
-                            <Code className="h-4 w-4 mr-1 opacity-70" /> Language:{" "}
-                            <span className="ml-1 font-medium">{submission.language}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })()}
                   </div>
                 ) : (
-                  <div className="text-center py-8 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-                    <History className="h-8 w-8 mx-auto mb-2 opacity-50 text-gray-600 dark:text-gray-400" />
-                    <p className="text-gray-600 dark:text-gray-400">No submissions yet. Run or submit your code!</p>
-                  </div>
+                  // Show submissions list
+                  <>
+                    <h2 className="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">Your Submissions</h2>
+                    {submissions.length > 0 ? (
+                      <div className="space-y-4">
+                        {submissions.map((submission) => (
+                          <div
+                            key={submission._id}
+                            onClick={() => handleSubmissionClick(submission)}
+                            className={`p-4 rounded-lg border cursor-pointer transition-all duration-200 shadow-sm ${
+                              openSubmissionTabs.some(tab => tab._id === submission._id)
+                                ? "border-blue-400 dark:border-blue-600 bg-blue-50 dark:bg-blue-900/20"
+                                : "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 hover:border-gray-300 dark:hover:border-gray-600"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center space-x-2">
+                                {getStatusIcon(submission.status)}
+                                <span className={`font-semibold text-lg ${getStatusColor(submission.status)}`}>
+                                  {submission.status}
+                                </span>
+                              </div>
+                              <span className="text-sm text-gray-600 dark:text-gray-400">
+                                {new Date(submission.date).toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-gray-700 dark:text-gray-300">
+                              <div className="flex items-center">
+                                <Clock className="h-4 w-4 mr-1 opacity-70" /> Runtime:{" "}
+                                <span className="ml-1 font-medium">{submission.runtime}ms</span>
+                          </div>
+                              <div className="flex items-center">
+                                <Clock className="h-4 w-4 mr-1 opacity-70" /> Runtime:{" "}
+                                <span className="ml-1 font-medium">{submission.runtime}ms</span>
+                              </div>
+                              <div className="flex items-center">
+                                <Memory className="h-4 w-4 mr-1 opacity-70" /> Memory:{" "}
+                                <span className="ml-1 font-medium">{submission.memory}MB</span>
+                              </div>
+                              <div className="flex items-center col-span-2">
+                                <Code className="h-4 w-4 mr-1 opacity-70" /> Language:{" "}
+                                <span className="ml-1 font-medium">{submission.language}</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+                        <History className="h-8 w-8 mx-auto mb-2 opacity-50 text-gray-600 dark:text-gray-400" />
+                        <p className="text-gray-600 dark:text-gray-400">No submissions yet. Run or submit your code!</p>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
