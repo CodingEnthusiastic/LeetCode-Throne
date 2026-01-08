@@ -10,7 +10,7 @@ import { python } from '@codemirror/lang-python';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { autocompletion, completionKeymap } from '@codemirror/autocomplete';
 import { searchKeymap } from '@codemirror/search';
-import { ArrowDown, Play, Send } from 'lucide-react';
+import { ArrowDown } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { EditorSelection } from '@codemirror/state';
 import { indentUnit } from '@codemirror/language';
@@ -1093,66 +1093,6 @@ const CodeMirrorEditor: React.FC<CodeMirrorEditorProps> = ({
         ? 'border-gray-600 bg-gray-800' 
         : 'border-gray-300 bg-white'
     } ${className}`}>
-      {/* Premium Editor Header with Run/Submit buttons */}
-      <div className={`flex items-center justify-center h-16 border-b ${
-        isDark 
-          ? 'border-gray-600 bg-gray-700' 
-          : 'border-gray-300 bg-gray-50'
-      }`}>
-        <div className="flex items-center gap-8">
-          <button
-            onClick={() => {
-              if (typeof onRun === 'function') {
-                onRun();
-              } else {
-                window.dispatchEvent(new CustomEvent('runCode'));
-              }
-            }}
-            disabled={running || !token}
-            className="flex items-center px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-            type="button"
-            style={{ marginRight: '12px' }}
-            title={!token ? "Please login to run code" : ""}
-          >
-            {running ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                Running...
-              </>
-            ) : (
-              <>
-                <Play className="h-4 w-4 mr-2" />
-                Run
-              </>
-            )}
-          </button>
-          <button
-            onClick={() => {
-              if (typeof onSubmit === 'function') {
-                onSubmit();
-              } else {
-                window.dispatchEvent(new CustomEvent('submitCode'));
-              }
-            }}
-            disabled={submitting || !token}
-            className="flex items-center px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-            type="button"
-            title={!token ? "Please login to submit code" : ""}
-          >
-            {submitting ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                Submitting...
-              </>
-            ) : (
-              <>
-                <Send className="h-4 w-4 mr-2" />
-                Submit
-              </>
-            )}
-          </button>
-        </div>
-      </div>
       {/* Editor Container */}
       <div 
         ref={editorRef} 
