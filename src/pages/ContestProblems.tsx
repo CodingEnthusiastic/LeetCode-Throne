@@ -6,9 +6,9 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useAuth } from "../contexts/AuthContext" // Assuming useAuth provides user info
 // import { useTheme } from "../contexts/ThemeContext"; // Assuming you create a ThemeContext
 import axios from "axios"
-import { Trophy, Users, BookOpen, Award, Code, CheckCircle, ArrowLeft, Timer, Play } from "lucide-react"
+import { Trophy, Users, BookOpen, Award, Code, CheckCircle, ArrowLeft, Timer, Play, Copy } from "lucide-react"
 import { API_URL, SOCKET_URL } from "../config/api";
-import { showError } from '../utils/toast';
+import { showError, showSuccess } from '../utils/toast';
 
 interface Contest {
   _id: string
@@ -132,6 +132,7 @@ const ContestProblems: React.FC = () => {
   const [timeRemaining, setTimeRemaining] = useState("")
   const [editorials, setEditorials] = useState<ProblemEditorial[]>([])
   const [loadingEditorials, setLoadingEditorials] = useState(false)
+  const [contestDataOnly, setContestDataOnly] = useState<Contest | null>(null) // Separate state for contest data to avoid unnecessary re-renders
 
   useEffect(() => {
     if (contestId) {
@@ -139,15 +140,29 @@ const ContestProblems: React.FC = () => {
     }
   }, [contestId])
 
+  // Separate useEffect for timer to prevent re-rendering other parts
   useEffect(() => {
-    const timer = setInterval(() => {
-      if (contest) {
-        updateTimeRemaining()
-      }
-    }, 1000)
-
+    let timer: NodeJS.Timeout
+    if (contest) {
+      timer = setInterval(() => {
+        setTimeRemaining(prevTime => {
+          if (contest) {
+            const now = new Date()
+            const end = new Date(contest.endTime)
+            const diff = end.getTime() - now.getTime()
+            if (diff <= 0) return "Contest Ended"
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60))
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+            return `${hours}h ${minutes}m ${seconds}s`
+          }
+          return prevTime
+        })
+      }, 1000)
+    }
     return () => clearInterval(timer)
-  }, [contest])
+  }, [contest?.endTime])
 
   useEffect(() => {
     if (activeTab === "editorial" && canViewEditorial() && editorials.length === 0) {
@@ -189,26 +204,7 @@ const ContestProblems: React.FC = () => {
     }
   }
 
-  const updateTimeRemaining = () => {
-    if (!contest) return
 
-    const now = new Date()
-    const end = new Date(contest.endTime)
-    const diff = end.getTime() - now.getTime()
-
-    if (diff <= 0) {
-      setTimeRemaining("Contest Ended")
-      return
-    }
-
-    const hours = Math.floor(diff / (1000 * 60 * 60))
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000)
-
-    setTimeRemaining(
-      `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
-    )
-  }
 
   const handleProblemClick = (problemId: string) => {
     console.log("🎯 Navigating to problem:", { contestId, problemId })
@@ -900,8 +896,19 @@ const ContestProblems: React.FC = () => {
                         <div className="space-y-4">
                           {editorial.referenceSolution.map((solution, solutionIndex) => (
                             <div key={solutionIndex} className="border border-gray-200 rounded-lg overflow-hidden dark:border-gray-600">
-                              <div className="bg-gray-100 px-4 py-2 border-b border-gray-200 dark:bg-gray-700 dark:border-gray-600">
+                              <div className="bg-gray-100 px-4 py-3 border-b border-gray-200 dark:bg-gray-700 dark:border-gray-600 flex items-center justify-between">
                                 <span className="font-semibold text-gray-700 capitalize dark:text-gray-200">{solution.language}</span>
+                                <button
+                                  onClick={() => {
+                                    navigator.clipboard.writeText(solution.completeCode)
+                                    showSuccess('Code copied to clipboard!')
+                                  }}
+                                  className="flex items-center px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm font-medium transition-colors"
+                                  title="Copy entire code"
+                                >
+                                  <Copy className="h-4 w-4 mr-1.5" />
+                                  Copy Code
+                                </button>
                               </div>
                               <pre className="p-4 bg-gray-50 text-sm font-mono overflow-x-auto dark:bg-gray-800 dark:text-gray-100">
                                 <code>{solution.completeCode}</code>

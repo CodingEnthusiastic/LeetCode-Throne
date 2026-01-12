@@ -2427,12 +2427,27 @@ const ProblemDetail: React.FC = () => {
                                  selectedSolutionLanguage === 'python' ? 'Python' : 
                                  'C'} Solution
                               </h3>
-                              <button
-                                onClick={() => copyToClipboard(selectedSolution.completeCode)}
-                                className="flex items-center px-3 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-sm font-medium transition-colors border border-transparent dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
-                              >
-                                <Copy className="h-4 w-4 mr-2" /> Copy Code
-                              </button>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => {
+                                    const editor = document.querySelector('.cm-editor') as any;
+                                    if (editor?.codemirror?.getEditor) {
+                                      editor.codemirror.getEditor().execCommand('selectAll');
+                                    }
+                                  }}
+                                  className="flex items-center px-3 py-1.5 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-md text-sm font-medium transition-colors border border-transparent dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500"
+                                  title="Select all code"
+                                >
+                                  <Copy className="h-4 w-4 mr-2" /> Select All
+                                </button>
+                                <button
+                                  onClick={() => copyToClipboard(selectedSolution.completeCode)}
+                                  className="flex items-center px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm font-medium transition-colors"
+                                  title="Copy entire code"
+                                >
+                                  <Copy className="h-4 w-4 mr-2" /> Copy Code
+                                </button>
+                              </div>
                             </div>
                             <div className="p-4">
                               <CodeMirrorEditor
