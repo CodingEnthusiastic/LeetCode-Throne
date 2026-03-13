@@ -231,7 +231,7 @@ const Home: React.FC = () => {
     {
       title: "AI Interview Practice",
       description: "Practice technical interviews with AI-powered questions and feedback",
-      image: "https://www.theladders.com/wp-content/uploads/interview-190927.jpg",
+      image: "https://incruiter.com/blog/wp-content/uploads/2025/03/Website-blog-feature-image-33.jpg",
       features: ["AI Questions", "Voice Interaction", "Real-time Feedback"],
       gradient: isDark
   ? "from-transparent via-transparent to-transparent"
