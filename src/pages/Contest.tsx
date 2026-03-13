@@ -342,6 +342,7 @@ const Contest: React.FC = () => {
                 <button
                   key={tab.id}
                   onClick={() => setFilter(tab.id)}
+                  sound="interaction.toggle"
                   className={`flex items-center px-4 py-2 rounded-lg font-medium transition-all duration-200 ${
                     filter === tab.id
                       ? "bg-blue-600 text-white shadow-md"
@@ -524,8 +525,7 @@ const Contest: React.FC = () => {
                       {/* Upcoming Contest - Show Register/Registered */}
                       {actualStatus === "upcoming" && (
                         <Button
-                          onClick={() => registerForContest(contest._id)}
-                          disabled={userRegistered}
+                          onClick={() => registerForContest(contest._id)}                        sound="interaction.confirm"                          disabled={userRegistered}
                           className="w-full"
                           variant={userRegistered ? "success" : "default"}
                           size="lg"
@@ -548,8 +548,7 @@ const Contest: React.FC = () => {
                         <>
                           {userRegistered ? (
                             <Button
-                              onClick={() => handleEnterContest(contest._id)}
-                              className="w-full bg-green-600 hover:bg-green-700"
+                              onClick={() => handleEnterContest(contest._id)}                            sound="interaction.confirm"                              className="w-full bg-green-600 hover:bg-green-700"
                               size="lg"
                             >
                               <Play className="h-5 w-5 mr-2" />
@@ -572,7 +571,8 @@ const Contest: React.FC = () => {
                       {/* Ended Contest - Show View Results */}
                       {actualStatus === "ended" && (
                         <Button 
-                          onClick={() => handleEnterContest(contest._id)} 
+                          onClick={() => handleEnterContest(contest._id)}
+                          sound="interaction.subtle"
                           className="w-full" 
                           variant="secondary" 
                           size="lg"

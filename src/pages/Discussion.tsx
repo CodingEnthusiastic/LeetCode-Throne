@@ -423,6 +423,7 @@ const Discussion: React.FC = () => {
           {user && (
             <button
               onClick={() => setShowCreateForm(true)}
+              sound="overlay.open"
               className={`flex items-center px-4 py-2 rounded-md font-semibold shadow-md transition-all duration-200 ${
                 isDark
                   ? "bg-gradient-to-r from-[#6366f1] to-[#818cf8] text-white hover:from-[#818cf8] hover:to-[#6366f1]"
@@ -483,6 +484,7 @@ const Discussion: React.FC = () => {
               <div className="flex space-x-3">
                 <button
                   type="submit"
+                  sound="interaction.confirm"
                   className={`px-4 py-2 rounded-md font-semibold shadow transition-all duration-200 ${
                     isDark
                       ? "bg-gradient-to-r from-[#6366f1] to-[#818cf8] text-white hover:from-[#818cf8] hover:to-[#6366f1]"
@@ -494,6 +496,7 @@ const Discussion: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowCreateForm(false)}
+                  sound="overlay.close"
                   className={`px-4 py-2 rounded-md border font-semibold ${
                     isDark
                       ? "border-[#6366f1]/30 text-[#a5b4fc] bg-[#23243a] hover:bg-[#181824]"

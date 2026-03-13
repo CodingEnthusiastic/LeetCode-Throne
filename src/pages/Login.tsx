@@ -255,6 +255,7 @@ const Login: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setRole('user')}
+                      sound="interaction.toggle"
                       className={`flex items-center justify-center px-3 py-2 border rounded-md text-sm font-medium transition-all duration-200 ${
                         role === 'user'
                           ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 shadow-md'
@@ -267,6 +268,7 @@ const Login: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setRole('admin')}
+                      sound="interaction.toggle"
                       className={`flex items-center justify-center px-3 py-2 border rounded-md text-sm font-medium transition-all duration-200 ${
                         role === 'admin'
                           ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-300 shadow-md'
@@ -300,6 +302,7 @@ const Login: React.FC = () => {
                     type="button"
                     className="absolute inset-y-0 right-0 pr-3 flex items-center hover:bg-gray-100 dark:hover:bg-gray-700 rounded-r-md transition-colors"
                     onClick={() => setShowPassword(!showPassword)}
+                    sound="interaction.toggle"
                     tabIndex={-1}
                   >
                     {showPassword ? (
@@ -315,6 +318,7 @@ const Login: React.FC = () => {
                 <button
                   type="submit"
                   disabled={loading}
+                  sound="interaction.confirm"
                   className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105 active:scale-95"
                 >
                   {loading ? (
@@ -333,6 +337,7 @@ const Login: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => window.location.href = `${API_URL}/auth/google`}
+                  sound="interaction.confirm"
                   className="w-full flex justify-center py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-200 bg-white/90 dark:bg-gray-900/90 hover:bg-gray-50 dark:hover:bg-gray-800/90 transition-all duration-200 backdrop-blur-sm transform hover:scale-105 active:scale-95"
                 >
                   <svg className="h-5 w-5 mr-2" viewBox="0 0 48 48">

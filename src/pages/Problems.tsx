@@ -393,6 +393,7 @@ const Problems: React.FC = () => {
                 ) : (
                   <button
                     onClick={() => window.location.href = `/problems/${potd?.problem?._id || ""}`}
+                    sound="interaction.confirm"
                     className="flex items-center px-8 py-4 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-600 hover:to-amber-600 dark:from-yellow-600 dark:to-amber-600 dark:hover:from-yellow-700 dark:hover:to-amber-700 text-white rounded-2xl font-extrabold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:scale-105"
                   >
                     <Trophy className="h-6 w-6 mr-2" />
@@ -432,7 +433,12 @@ const Problems: React.FC = () => {
               <select
                 className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-900 dark:text-gray-100 flex items-center justify-start text-left"
                 value={selectedDifficulty}
-                onChange={(e) => setSelectedDifficulty(e.target.value)}
+                onChange={(e) => {
+                  setSelectedDifficulty(e.target.value);
+                  const audio = new Audio('data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==');
+                  audio.play().catch(() => {});
+                }}
+                sound="interaction.toggle"
               >
                 <option value="">All Difficulties</option>
                 <option value="Easy">Easy</option>
