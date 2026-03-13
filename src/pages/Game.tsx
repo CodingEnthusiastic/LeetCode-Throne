@@ -1439,6 +1439,7 @@ const getOpponentPlayer = () => {
               <div className="flex space-x-4 mb-4">
                 <button
                   onClick={handleSubmitCode}
+                  sound="interaction.confirm"
                   disabled={!isSubmitEnabled()}
                   className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >

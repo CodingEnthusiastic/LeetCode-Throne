@@ -415,6 +415,7 @@ const Announcements: React.FC = () => {
             {user && user.role === "admin" && (
               <button
                 onClick={() => setShowCreateForm(true)}
+                sound="overlay.open"
                 className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -465,10 +466,10 @@ const Announcements: React.FC = () => {
                   </select>
                 </div>
                 <div className="flex space-x-3">
-                  <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                  <button type="submit" sound="interaction.confirm" className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                     Publish
                   </button>
-                  <button type="button" onClick={() => setShowCreateForm(false)} className="px-4 py-2 border rounded-md">
+                  <button type="button" onClick={() => setShowCreateForm(false)} sound="overlay.close" className="px-4 py-2 border rounded-md">
                     Cancel
                   </button>
                 </div>
