@@ -1,9 +1,11 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'node:18'
+        }
+    }
 
     stages {
-        
-
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
@@ -13,12 +15,6 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'npm run build'
-            }
-        }
-
-        stage('Run App') {
-            steps {
-                sh 'npm run preview -- --host 0.0.0.0 --port 3000 &'
             }
         }
     }
